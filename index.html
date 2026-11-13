@@ -14,106 +14,138 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Atkinson Hype
 main{max-width:920px;margin:0 auto;padding:28px 16px 48px}
 h1{font-size:1.6rem;margin:0 0 4px}
 .sub{color:var(--muted);margin:0 0 24px}
-.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
 .rules div{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
 .rules b{display:block;font-size:1.05rem}
 .rules span{color:var(--muted);font-size:.9rem}
-.team{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:12px;display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:12px;align-items:end}
+.team{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end}
+.components{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.component{border:1px solid var(--line);border-radius:4px;padding:10px}
+.component .value{display:block;margin-top:8px;font-weight:700}
+.team-total{border-top:1px solid var(--line);padding-top:10px;text-align:right}
+.team-total strong{font-size:1.15rem}
+.team-total span{display:block;color:var(--muted);font-size:.85rem}
 label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
 input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:9px 10px}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.sub-total{text-align:right;min-width:120px}
-.sub-total strong{display:block;font-size:1.15rem}
 .row-actions{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;color:var(--muted);font-size:.9rem}
 button{font:inherit;cursor:pointer;border-radius:4px;padding:9px 14px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
-button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;margin:0 8px 8px 0}
 button.link{border:0;background:none;color:var(--muted);text-decoration:underline;padding:0}
 .total{margin-top:20px;background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center}
 .total .big{font-size:2.2rem;font-weight:700;line-height:1.1}
 .break{display:flex;gap:24px;flex-wrap:wrap}
 .break span{display:block;font-size:.85rem;opacity:.85}
-.dif{display:block;font-size:.85rem;color:var(--muted)}
 .note{color:var(--muted);font-size:.85rem;margin-top:16px}
-@media(max-width:700px){.rules{grid-template-columns:repeat(2,1fr)}.team{grid-template-columns:1fr 1fr}.team>div:first-child{grid-column:1/-1}.sub-total{text-align:left}}
+@media(max-width:700px){.rules,.components{grid-template-columns:1fr}.team{grid-template-columns:1fr 1fr}.components{grid-column:1/-1}.team-total{text-align:left}}
 </style>
 </head>
 <body>
 <main>
   <h1>Calculadora de Qualidade</h1>
-  <p class="sub">Compare o valor da classificação com o recurso fixo de R$ 12.000 e veja quanto a equipe ganha ou perde.</p>
+  <p class="sub">Some o valor fixo de cada equipe aos valores de até dois componentes.</p>
 
-  <div class="rules" aria-label="Valores por classificação">
-    <div><b>Regular</b><span>R$ 2.000</span></div>
-    <div><b>Suficiente</b><span>R$ 4.000</span></div>
-    <div><b>Bom</b><span>R$ 6.000</span></div>
-    <div><b>Ótimo</b><span>R$ 8.000</span></div>
+  <div class="rules" aria-label="Valores fixos e por classificação">
+    <div><b>eSF · fixo R$ 12.000</b><span>Regular R$ 2.000 · Suficiente R$ 4.000 · Bom R$ 6.000 · Ótimo R$ 8.000</span></div>
+    <div><b>eAP 30H · fixo R$ 7.200</b><span>Regular R$ 1.000 · Suficiente R$ 2.000 · Bom R$ 3.000 · Ótimo R$ 4.000</span></div>
+    <div><b>eAP 20H · sem valor fixo</b><span>Regular R$ 750 · Suficiente R$ 1.500 · Bom R$ 2.250 · Ótimo R$ 3.000</span></div>
   </div>
 
   <p class="sub" style="margin-bottom:12px">Todos os valores são mensais.</p>
   <div id="teams"></div>
-  <button class="primary" id="add">Adicionar equipe</button>
+  <button class="primary" data-add="esf">Adicionar eSF</button>
+  <button class="primary" data-add="eap30">Adicionar eAP 30H</button>
+  <button class="primary" data-add="eap20">Adicionar eAP 20H</button>
 
   <section class="total" aria-live="polite">
     <div>
-      <span>Diferença mensal em relação ao fixo, <b id="count">1</b> equipe(s)</span>
+      <span>Total mensal de <b id="count">1</b> equipe(s)</span>
       <div class="big" id="grand">R$ 0,00</div>
     </div>
     <div class="break">
-      <div><span>Recurso fixo</span><b id="tFixo"></b></div>
-      <div><span>Classificação: vínculo e acompanhamento</span><b id="tVin"></b></div>
-      <div><span>Classificação: qualidade</span><b id="tQual"></b></div>
+      <div><span>Valores fixos</span><b id="tFixo"></b></div>
+      <div><span>Componentes: vínculo e acompanhamento</span><b id="tVin"></b></div>
+      <div><span>Componentes: qualidade</span><b id="tQual"></b></div>
     </div>
   </section>
-  <p class="note">Valores mensais. A diferença é o valor da classificação (vínculo e acompanhamento ou qualidade) menos o recurso fixo de R$ 12.000 por equipe. Exemplo: Ótimo = R$ 8.000 − R$ 12.000 = perde R$ 4.000.</p>
+  <p class="note">O total mensal é a soma do valor fixo de cada equipe com os valores dos componentes selecionados. Cada equipe pode ter até dois componentes; o valor de cada um depende do tipo de equipe e da classificação.</p>
 </main>
 
 <script>
-const FIXO = 12000;
-const NIVEIS = [["Regular",2000],["Suficiente",4000],["Bom",6000],["Ótimo",8000]];
+const COMPONENTS = ["Vínculo e acompanhamento","Qualidade"];
+const LEVELS = ["Regular","Suficiente","Bom","Ótimo"];
+const TEAM_TYPES = {
+  esf: {label:"eSF",fixed:12000,values:[2000,4000,6000,8000]},
+  eap30: {label:"eAP 30H",fixed:7200,values:[1000,2000,3000,4000]},
+  eap20: {label:"eAP 20H",fixed:0,values:[750,1500,2250,3000]}
+};
 const brl = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-let teams = [{nome:"eSF 1",comp:0,nivel:0}];
-const incFixo = () => true;
-const sub = t => NIVEIS[t.nivel][1];
-const dif = d => d<0 ? "Perde "+brl(-d) : d>0 ? "Ganha "+brl(d) : "Sem diferença";
-
-const opts = sel => NIVEIS.map((n,i)=>`<option value="${i}"${i===sel?" selected":""}>${n[0]} (${brl(n[1])})</option>`).join("");
+let teams = [{tipo:"esf",nome:"eSF 1",components:[{comp:0,nivel:0},null]}];
+const teamTotal = t => TEAM_TYPES[t.tipo].fixed+t.components.reduce((sum,c)=>sum+(c?TEAM_TYPES[t.tipo].values[c.nivel]:0),0);
 const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
+function levelOptions(tipo,sel){
+  return LEVELS.map((name,i)=>`<option value="${i}"${i===sel?" selected":""}>${name} (${brl(TEAM_TYPES[tipo].values[i])})</option>`).join("");
+}
+function componentSlot(team,index,teamIndex){
+  const component=team.components[index];
+  return `<div class="component">
+    <label for="c${teamIndex}-${index}">Componente ${index+1}</label>
+    <select id="c${teamIndex}-${index}" data-i="${teamIndex}" data-slot="${index}" data-k="comp">
+      <option value=""${component===null?" selected":""}>Sem componente</option>
+      ${COMPONENTS.map((name,i)=>`<option value="${i}"${component&&component.comp===i?" selected":""}>${name}</option>`).join("")}
+    </select>
+    ${component?`<label for="l${teamIndex}-${index}" style="margin-top:8px">Classificação</label>
+    <select id="l${teamIndex}-${index}" data-i="${teamIndex}" data-slot="${index}" data-k="nivel">${levelOptions(team.tipo,component.nivel)}</select>
+    <span class="value">${brl(TEAM_TYPES[team.tipo].values[component.nivel])}</span>`:""}
+  </div>`;
+}
 function render(){
   const box = document.getElementById("teams");
   box.innerHTML = teams.map((t,i)=>`
     <div class="team">
       <div><label for="n${i}">Equipe</label><input id="n${i}" value="${esc(t.nome)}" data-i="${i}" data-k="nome"></div>
-      <div><label for="c${i}">Componente</label><select id="c${i}" data-i="${i}" data-k="comp"><option value="0"${t.comp===0?" selected":""}>Vínculo e acompanhamento</option><option value="1"${t.comp===1?" selected":""}>Qualidade</option></select></div>
-      <div><label for="l${i}">Classificação</label><select id="l${i}" data-i="${i}" data-k="nivel">${opts(t.nivel)}</select></div>
-      <div class="sub-total"><label>Valor da classificação</label><strong>${brl(sub(t))}</strong><small class="dif">${dif(sub(t)-FIXO)}</small></div>
+      <div><label>Valor fixo · ${TEAM_TYPES[t.tipo].label}</label><strong>${brl(TEAM_TYPES[t.tipo].fixed)}</strong></div>
+      <div class="components">${componentSlot(t,0,i)}${componentSlot(t,1,i)}</div>
+      <div class="team-total"><span>Fixo + componentes</span><strong>${brl(teamTotal(t))}</strong></div>
       ${teams.length>1?`<div class="row-actions"><span></span><button class="link" data-rm="${i}">Remover equipe</button></div>`:""}
     </div>`).join("");
   totals();
 }
 function totals(){
   const n = teams.length;
-  const soma = c => teams.filter(t=>t.comp===c).reduce((s,t)=>s+NIVEIS[t.nivel][1],0);
-  const vin = soma(0), qual = soma(1);
-  const fixo = incFixo()?FIXO*n:0;
+  const vin = teams.reduce((sum,t)=>sum+t.components.reduce((total,c)=>total+(c&&c.comp===0?TEAM_TYPES[t.tipo].values[c.nivel]:0),0),0);
+  const qual = teams.reduce((sum,t)=>sum+t.components.reduce((total,c)=>total+(c&&c.comp===1?TEAM_TYPES[t.tipo].values[c.nivel]:0),0),0);
+  const fixo = teams.reduce((sum,t)=>sum+TEAM_TYPES[t.tipo].fixed,0);
   document.getElementById("count").textContent = n;
   document.getElementById("tVin").textContent = brl(vin);
   document.getElementById("tQual").textContent = brl(qual);
   document.getElementById("tFixo").textContent = brl(fixo);
-  document.getElementById("grand").textContent = dif(vin+qual-fixo);
+  document.getElementById("grand").textContent = brl(fixo+vin+qual);
 }
 document.getElementById("teams").addEventListener("input",e=>{
-  const i=e.target.dataset.i,k=e.target.dataset.k; if(i===undefined) return;
-  teams[i][k] = k==="nome" ? e.target.value : +e.target.value;
-  if(k!=="nome") render(); else totals();
+  const i=e.target.dataset.i; if(i===undefined||e.target.dataset.k!=="nome") return;
+  teams[i].nome = e.target.value;
+});
+document.getElementById("teams").addEventListener("change",e=>{
+  const {i,k,slot}=e.target.dataset; if(i===undefined||slot===undefined) return;
+  const team=teams[+i], index=+slot;
+  if(k==="comp"){
+    team.components[index]=e.target.value===""?null:{comp:+e.target.value,nivel:team.components[index]?.nivel??0};
+  }else if(k==="nivel"&&team.components[index]){
+    team.components[index].nivel=+e.target.value;
+  }
+  render();
 });
 document.getElementById("teams").addEventListener("click",e=>{
   const r=e.target.dataset.rm; if(r===undefined) return;
   teams.splice(+r,1); render();
 });
-document.getElementById("add").addEventListener("click",()=>{
-  teams.push({nome:"eSF "+(teams.length+1),comp:0,nivel:0}); render();
-});
+document.querySelectorAll("[data-add]").forEach(button=>button.addEventListener("click",()=>{
+  const tipo=button.dataset.add, label=TEAM_TYPES[tipo].label;
+  const count=teams.filter(t=>t.tipo===tipo).length+1;
+  teams.push({tipo,nome:`${label} ${count}`,components:[null,null]}); render();
+}));
 render();
 </script>
 </body>
