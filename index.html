@@ -32,6 +32,7 @@ button.link{border:0;background:none;color:var(--muted);text-decoration:underlin
 .total .big{font-size:2.2rem;font-weight:700;line-height:1.1}
 .break{display:flex;gap:24px;flex-wrap:wrap}
 .break span{display:block;font-size:.85rem;opacity:.85}
+.dif{display:block;font-size:.85rem;color:var(--muted)}
 .note{color:var(--muted);font-size:.85rem;margin-top:16px}
 @media(max-width:700px){.rules{grid-template-columns:repeat(2,1fr)}.team{grid-template-columns:1fr 1fr}.team>div:first-child{grid-column:1/-1}.sub-total{text-align:left}}
 </style>
@@ -39,7 +40,7 @@ button.link{border:0;background:none;color:var(--muted);text-decoration:underlin
 <body>
 <main>
   <h1>Calculadora de cofinanciamento por eSF</h1>
-  <p class="sub">Cada equipe recebe R$ 12.000 de recurso fixo por mês, mais o valor da classificação.</p>
+  <p class="sub">Compare o valor da classificação com o recurso fixo de R$ 12.000 e veja quanto a equipe ganha ou perde.</p>
 
   <div class="rules" aria-label="Valores por classificação">
     <div><b>Regular</b><span>R$ 2.000</span></div>
@@ -54,16 +55,16 @@ button.link{border:0;background:none;color:var(--muted);text-decoration:underlin
 
   <section class="total" aria-live="polite">
     <div>
-      <span>Total mensal de <b id="count">1</b> equipe(s)</span>
+      <span>Diferença mensal em relação ao fixo, <b id="count">1</b> equipe(s)</span>
       <div class="big" id="grand">R$ 0,00</div>
     </div>
     <div class="break">
       <div><span>Recurso fixo</span><b id="tFixo"></b></div>
-      <div><span>Vínculo e acompanhamento</span><b id="tVin"></b></div>
-      <div><span>Qualidade</span><b id="tQual"></b></div>
+      <div><span>Classificação: vínculo e acompanhamento</span><b id="tVin"></b></div>
+      <div><span>Classificação: qualidade</span><b id="tQual"></b></div>
     </div>
   </section>
-  <p class="note">Valores mensais. Cada equipe usa um componente por vez: o valor adicional é o da classificação escolhida em vínculo e acompanhamento ou em qualidade, somado ao recurso fixo de R$ 12.000.</p>
+  <p class="note">Valores mensais. A diferença é o valor da classificação (vínculo e acompanhamento ou qualidade) menos o recurso fixo de R$ 12.000 por equipe. Exemplo: Ótimo = R$ 8.000 − R$ 12.000 = perde R$ 4.000.</p>
 </main>
 
 <script>
@@ -72,7 +73,8 @@ const NIVEIS = [["Regular",2000],["Suficiente",4000],["Bom",6000],["Ótimo",8000
 const brl = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 let teams = [{nome:"eSF 1",comp:0,nivel:0}];
 const incFixo = () => true;
-const sub = t => (incFixo()?FIXO:0) + NIVEIS[t.nivel][1];
+const sub = t => NIVEIS[t.nivel][1];
+const dif = d => d<0 ? "Perde "+brl(-d) : d>0 ? "Ganha "+brl(d) : "Sem diferença";
 
 const opts = sel => NIVEIS.map((n,i)=>`<option value="${i}"${i===sel?" selected":""}>${n[0]} (${brl(n[1])})</option>`).join("");
 const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -84,7 +86,7 @@ function render(){
       <div><label for="n${i}">Equipe</label><input id="n${i}" value="${esc(t.nome)}" data-i="${i}" data-k="nome"></div>
       <div><label for="c${i}">Componente</label><select id="c${i}" data-i="${i}" data-k="comp"><option value="0"${t.comp===0?" selected":""}>Vínculo e acompanhamento</option><option value="1"${t.comp===1?" selected":""}>Qualidade</option></select></div>
       <div><label for="l${i}">Classificação</label><select id="l${i}" data-i="${i}" data-k="nivel">${opts(t.nivel)}</select></div>
-      <div class="sub-total"><label>Subtotal</label><strong>${brl(sub(t))}</strong></div>
+      <div class="sub-total"><label>Valor da classificação</label><strong>${brl(sub(t))}</strong><small class="dif">${dif(sub(t)-FIXO)}</small></div>
       ${teams.length>1?`<div class="row-actions"><span></span><button class="link" data-rm="${i}">Remover equipe</button></div>`:""}
     </div>`).join("");
   totals();
@@ -95,10 +97,10 @@ function totals(){
   const vin = soma(0), qual = soma(1);
   const fixo = incFixo()?FIXO*n:0;
   document.getElementById("count").textContent = n;
-  document.getElementById("tFixo").textContent = brl(fixo);
   document.getElementById("tVin").textContent = brl(vin);
   document.getElementById("tQual").textContent = brl(qual);
-  document.getElementById("grand").textContent = brl(fixo+vin+qual);
+  document.getElementById("tFixo").textContent = brl(fixo);
+  document.getElementById("grand").textContent = dif(vin+qual-fixo);
 }
 document.getElementById("teams").addEventListener("input",e=>{
   const i=e.target.dataset.i,k=e.target.dataset.k; if(i===undefined) return;
