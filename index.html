@@ -55,7 +55,7 @@ button.link{border:0;background:none;color:var(--muted);text-decoration:underlin
   <div class="rules" aria-label="Valores fixos e por classificação">
     <div><b>eSF · fixo R$ 12.000</b><span>Regular R$ 2.000 · Suficiente R$ 4.000 · Bom R$ 6.000 · Ótimo R$ 8.000</span></div>
     <div><b>eAP 30H · fixo R$ 7.200</b><span>Regular R$ 1.000 · Suficiente R$ 2.000 · Bom R$ 3.000 · Ótimo R$ 4.000</span></div>
-    <div><b>eAP 20H · sem valor fixo</b><span>Regular R$ 750 · Suficiente R$ 1.500 · Bom R$ 2.250 · Ótimo R$ 3.000</span></div>
+    <div><b>eAP 20H · fixo R$ 4.800</b><span>Regular R$ 750 · Suficiente R$ 1.500 · Bom R$ 2.250 · Ótimo R$ 3.000</span></div>
   </div>
 
   <p class="sub" style="margin-bottom:12px">Todos os valores são mensais.</p>
@@ -91,7 +91,7 @@ const LEVELS = ["Regular","Suficiente","Bom","Ótimo"];
 const TEAM_TYPES = {
   esf: {label:"eSF",fixed:12000,values:[2000,4000,6000,8000]},
   eap30: {label:"eAP 30H",fixed:7200,values:[1000,2000,3000,4000]},
-  eap20: {label:"eAP 20H",fixed:0,values:[750,1500,2250,3000]}
+  eap20: {label:"eAP 20H",fixed:4800,values:[750,1500,2250,3000]}
 };
 const brl = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 let teams = [{tipo:"esf",nome:"eSF 1",quantity:1,components:[{comp:0,nivel:0},null]}];
